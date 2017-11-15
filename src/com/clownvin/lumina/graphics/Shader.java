@@ -12,45 +12,45 @@ import com.clownvin.lumina.res.ResourceManager;
 
 public class Shader {
 	private static final String SHADER_PATH = "shader/";
-	
+
 	private int program;
 	private int vs;
 	private int fs;
-	
+
 	public Shader(String name) {
 		program = glCreateProgram();
 		vs = glCreateShader(GL_VERTEX_SHADER);
-		glShaderSource(vs, ResourceManager.readShader(SHADER_PATH+name+".vs"));
+		glShaderSource(vs, ResourceManager.readShader(SHADER_PATH + name + ".vs"));
 		glCompileShader(vs);
 		if (glGetShaderi(vs, GL_COMPILE_STATUS) != 1) {
-			Log.logE(glGetShaderInfoLog(vs)+"\n");
+			Log.logE(glGetShaderInfoLog(vs) + "\n");
 			System.exit(1);
 		}
 		fs = glCreateShader(GL_FRAGMENT_SHADER);
-		glShaderSource(fs, ResourceManager.readShader(SHADER_PATH+name+".fs"));
+		glShaderSource(fs, ResourceManager.readShader(SHADER_PATH + name + ".fs"));
 		glCompileShader(fs);
 		if (glGetShaderi(fs, GL_COMPILE_STATUS) != 1) {
-			Log.logE(glGetShaderInfoLog(fs)+"\n");
+			Log.logE(glGetShaderInfoLog(fs) + "\n");
 			System.exit(1);
 		}
 		glAttachShader(program, vs);
 		glAttachShader(program, fs);
-		
+
 		glBindAttribLocation(program, 0, "vertices");
 		glBindAttribLocation(program, 1, "textures");
-		
+
 		glLinkProgram(program);
 		if (glGetProgrami(program, GL_LINK_STATUS) != 1) {
-			Log.logE(glGetProgramInfoLog(program)+"\n");
+			Log.logE(glGetProgramInfoLog(program) + "\n");
 			System.exit(1);
 		}
 		glValidateProgram(program);
 		if (glGetProgrami(program, GL_VALIDATE_STATUS) != 1) {
-			Log.logE(glGetProgramInfoLog(program)+"\n");
+			Log.logE(glGetProgramInfoLog(program) + "\n");
 			System.exit(1);
 		}
 	}
-	
+
 	public void setUniform(String name, Object value) {
 		Integer pointer = glGetUniformLocation(program, name);
 		if (pointer == -1) {
@@ -69,7 +69,7 @@ public class Shader {
 			Log.logE("No case for uniform type.\n");
 		}
 	}
-	
+
 	public void bind() {
 		glUseProgram(program);
 	}

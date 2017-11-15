@@ -8,7 +8,7 @@ public class StaticEntity extends Entity {
 	public StaticEntity() {
 		this(0.0f, 0.0f);
 	}
-	
+
 	public StaticEntity(float x, float y) {
 		super(x, y);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexPointer);

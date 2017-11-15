@@ -13,23 +13,23 @@ import com.clownvin.lumina.LuminaEngine;
 import com.clownvin.lumina.res.ResourceManager;
 import com.clownvin.lumina.world.WorldManager;
 
-import static  org.lwjgl.opengl.GL.*;
-import static  org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL.*;
+import static org.lwjgl.opengl.GL11.*;
 
 public final class Window {
-	
+
 	private static long window = NULL;
 	private static int width, height;
 	private static String title = "";
 	private static GLFWVidMode videoMode = null;
 	private static boolean fullscreen = false;
-	
+
 	static {
 		if (!glfwInit())
 			throw new IllegalStateException("Failed to initialize GLFW...");
 		videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 	}
-	
+
 	public static void createWindow(int width, int height, String title) {
 		if (width > videoMode.width())
 			width = videoMode.width();
@@ -43,7 +43,7 @@ public final class Window {
 		Window.height = height;
 		Window.title = title;
 		glfwWindowHint(GLFW_SAMPLES, 4);
-		window = glfwCreateWindow(width, height, title, fullscreen ? glfwGetPrimaryMonitor() :  NULL, NULL);
+		window = glfwCreateWindow(width, height, title, fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
 		if (window == NULL)
 			throw new IllegalStateException("Failed to create window...");
 		glfwMakeContextCurrent(window);
@@ -55,59 +55,57 @@ public final class Window {
 			public void invoke(long window, int width, int height) {
 				Window.width = width;
 				Window.height = height;
-				onResize();
+				recalibrate();
 			}
-			
+
 		});
 		createCapabilities();
-		onResize();
+		recalibrate();
 		glfwShowWindow(window);
 	}
-	
+
 	public static void setSize(int width, int height) {
 		glfwSetWindowSize(window, width, height);
 	}
-	
+
 	public static void render() {
 		RenderUtil.clearScreen();
-		
-		//Entity entity = new Entity(4.0f, 0.0f);
-		Shader shader = ResourceManager.getShader(LuminaEngine.getGame().getShader());
+		Shader shader = ResourceManager.getShader(LuminaEngine.getGlobalShader());
 		shader.bind();
 		shader.setUniform("sampler", 0);
 		WorldManager.renderWorld();
 		glfwSwapBuffers(window);
 	}
-	
+
 	public static boolean shouldClose() {
 		return glfwWindowShouldClose(window);
 	}
-	
+
 	public static int getWidth() {
 		return width;
 	}
-	
+
 	public static int getHeight() {
 		return height;
 	}
-	
+
 	public static void dispose() {
 		glfwDestroyWindow(window);
 	}
-	
-	private static void onResize() {
-		Camera.resizeMatrix(width, height, LuminaEngine.getGame().getSpriteScale());
+
+	public static void recalibrate() {
+		Camera.resizeMatrix(width, height, LuminaEngine.getGlobalImageScale());
 		glViewport(0, 0, width, height);
 	}
-	
+
 	public static void setKeyCallback(GLFWKeyCallback callback) {
 		glfwSetKeyCallback(window, callback);
 	}
-	
+
 	public static void setCursorPosCallback(GLFWCursorPosCallback callback) {
 		glfwSetCursorPosCallback(window, callback);
 	}
-	
+
 	public static void setMouseButtonCallback(GLFWMouseButtonCallback callback) {
 		glfwSetMouseButtonCallback(window, callback);
 	}

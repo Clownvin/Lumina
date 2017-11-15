@@ -11,25 +11,25 @@ import com.clownvin.lumina.entity.Entity;
 import com.clownvin.lumina.entity.TileEntity;
 
 public final class WorldManager {
-	//private static final Hashtable<String, World> worldTable = new Hashtable<>();
-	
+	// private static final Hashtable<String, World> worldTable = new Hashtable<>();
+
 	private static World currentWorld;
-	
+
 	public static void renderWorld() {
 		currentWorld.renderTiles();
 		currentWorld.renderEntities();
 	}
-	
+
 	public static World getWorld() {
 		return currentWorld;
 	}
-	
+
 	public static void addEntity(Entity entity) {
 		currentWorld.addEntity(entity);
 	}
-	
+
 	public static boolean loadWorld(String worldName) {
-		File worldFile = new File("./res/worlds/"+worldName+".world");
+		File worldFile = new File("./res/worlds/" + worldName + ".world");
 		BufferedReader reader = null;
 		String line = "";
 		Hashtable<String, String> textures = new Hashtable<>();

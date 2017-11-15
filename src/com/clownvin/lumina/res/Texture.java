@@ -7,7 +7,7 @@ import com.clownvin.lumina.Log;
 
 public class Texture {
 	private final int id, width, height;
-	
+
 	public Texture(int id, int width, int height) {
 		this.id = id;
 		this.width = width;
@@ -25,7 +25,7 @@ public class Texture {
 	public int getHeight() {
 		return height;
 	}
-	
+
 	public void bind(int sampler) {
 		if (sampler < 0 || sampler > 31) {
 			Log.logE("Sampler out of range");
