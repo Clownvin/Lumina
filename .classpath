@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="C:/Users/Clownvin/Desktop/jars/lwjgl/lwjgl.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Clownvin/Desktop/jars/lwjgl/lwjgl-glfw.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/Clownvin/Desktop/jars/lwjgl/lwjgl-glfw-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Clownvin/Desktop/jars/lwjgl/lwjgl-glfw-natives-windows.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Clownvin/Desktop/jars/lwjgl/lwjgl-jemalloc.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Clownvin/Desktop/jars/lwjgl/lwjgl-jemalloc-natives-windows.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Clownvin/Desktop/jars/lwjgl/lwjgl-natives-windows.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Clownvin/Desktop/jars/lwjgl/lwjgl-openal.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Clownvin/Desktop/jars/lwjgl/lwjgl-openal-natives-windows.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Clownvin/Desktop/jars/lwjgl/lwjgl-opengl.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Clownvin/Desktop/jars/lwjgl/lwjgl-opengl-natives-windows.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Clownvin/Desktop/jars/lwjgl/lwjgl-stb.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Clownvin/Desktop/jars/lwjgl/lwjgl-stb-natives-windows.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Clownvin/Desktop/lwjgl3 slick/slick-util3/slick-util3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Clownvin/Desktop/jars/joml-1.9.6.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
