@@ -10,11 +10,14 @@ import com.clownvin.lumina.LuminaEngine;
 import com.clownvin.lumina.Log;
 import com.clownvin.lumina.entity.DynamicEntity;
 import com.clownvin.lumina.graphics.Camera;
+import com.clownvin.lumina.gui.ChatBox;
+import com.clownvin.lumina.gui.GUIManager;
+import com.clownvin.lumina.gui.TitleScreen;
 import com.clownvin.lumina.world.WorldManager;
 
 public class TestGame extends Game {
 
-	public static float moveAmount = 0.05f;
+	public static float moveAmount = 2.0f/64.0f;
 
 	public DynamicEntity player;
 
@@ -29,7 +32,9 @@ public class TestGame extends Game {
 	}
 
 	public boolean moving = false;
+	public Vector2f directionVector = new Vector2f(0.0f, 0.0f);
 	public Vector2f movementVector = new Vector2f(0.0f, 0.0f);
+	public TitleScreen titleScreen;
 
 	@Override
 	public GLFWKeyCallback getKeyCallback() {
@@ -40,30 +45,30 @@ public class TestGame extends Game {
 				switch (key) {
 				case 0x41: // A
 					if (action == 1) {
-						movementVector = movementVector.add(moveAmount, 0.0f);
+						directionVector = directionVector.add(-moveAmount, 0.0f);
 					} else if (action == 0) {
-						movementVector = movementVector.sub(moveAmount, 0.0f);
+						directionVector = directionVector.sub(-moveAmount, 0.0f);
 					}
 					break;
 				case 0x44: // D
 					if (action == 1) {
-						movementVector = movementVector.add(-moveAmount, 0.0f);
+						directionVector = directionVector.add(moveAmount, 0.0f);
 					} else if (action == 0) {
-						movementVector = movementVector.sub(-moveAmount, 0.0f);
+						directionVector = directionVector.sub(moveAmount, 0.0f);
 					}
 					break;
 				case 0x53: // S
 					if (action == 1) {
-						movementVector = movementVector.add(0.0f, moveAmount);
+						directionVector = directionVector.add(0.0f, -moveAmount);
 					} else if (action == 0) {
-						movementVector = movementVector.sub(0.0f, moveAmount);
+						directionVector = directionVector.sub(0.0f, -moveAmount);
 					}
 					break;
 				case 0x57: // W
 					if (action == 1) {
-						movementVector = movementVector.add(0.0f, -moveAmount);
+						directionVector = directionVector.add(0.0f, moveAmount);
 					} else if (action == 0) {
-						movementVector = movementVector.sub(0.0f, -moveAmount);
+						directionVector = directionVector.sub(0.0f, moveAmount);
 					}
 					break;
 				case 0x100: // ESCAPE
@@ -73,6 +78,12 @@ public class TestGame extends Game {
 					Log.log("key: " + key + ", scancode: " + scancode + ", action: " + action + ", mods: " + mods
 							+ "\n");
 					break;
+				}
+				if (directionVector.length() != 0) {
+					directionVector.normalize(movementVector);
+					movementVector.mul(moveAmount, movementVector);
+				} else {
+					movementVector = new Vector2f(0.0f, 0.0f);
 				}
 			}
 
@@ -85,7 +96,7 @@ public class TestGame extends Game {
 
 			@Override
 			public void invoke(long window, double xpos, double ypos) {
-				Log.log("x: " + xpos + ", y: " + ypos + "\n");
+				//Log.log("x: " + xpos + ", y: " + ypos + "\n");
 			}
 
 		};
@@ -97,7 +108,16 @@ public class TestGame extends Game {
 
 			@Override
 			public void invoke(long window, int button, int action, int mods) {
-				Log.log("button: " + button + ", action: " + action + ", mods: " + mods + "\n");
+				switch (button) {
+				case 0: //LEFT CLICK
+					titleScreen.setVisible(false);
+					LuminaEngine.setShowWorld(true);
+					break;
+				default:
+					Log.log("button: " + button + ", action: " + action + ", mods: " + mods + "\n");
+					break;
+					
+				}
 			}
 
 		};
@@ -110,16 +130,20 @@ public class TestGame extends Game {
 
 	@Override
 	public void onUpdate() {
-		Camera.move(movementVector);
-		player.move(new Vector2f(0.0f, 0.0f).sub(movementVector));
+		Camera.move(new Vector2f(0.0f, 0.0f).sub(movementVector));
+		player.move(movementVector);
 	}
 
 	@Override
 	public void setup() {
-		LuminaEngine.setTargetFPS(120.0d);
+		LuminaEngine.setTargetFPS(60.0d);
 		LuminaEngine.setGlobalImageScale(64);
-		LuminaEngine.setGlobalShader("testshader");
 		player = new DynamicEntity(0, 0);
+		LuminaEngine.setShowWorld(false);
+		LuminaEngine.setShowGUI(true);
+		titleScreen = new TitleScreen("title1");
+		GUIManager.addGUIComponent(new ChatBox(500, 200));
+		GUIManager.addGUIComponent(titleScreen);
 		WorldManager.loadWorld("test");
 		WorldManager.getWorld().addEntity(player);
 	}

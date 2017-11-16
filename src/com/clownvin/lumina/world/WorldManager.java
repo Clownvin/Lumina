@@ -13,14 +13,14 @@ import com.clownvin.lumina.entity.TileEntity;
 public final class WorldManager {
 	// private static final Hashtable<String, World> worldTable = new Hashtable<>();
 
-	private static World currentWorld;
+	private static Chunk currentWorld;
 
 	public static void renderWorld() {
 		currentWorld.renderTiles();
 		currentWorld.renderEntities();
 	}
 
-	public static World getWorld() {
+	public static Chunk getWorld() {
 		return currentWorld;
 	}
 
@@ -80,7 +80,7 @@ public final class WorldManager {
 				System.exit(1);
 			}
 		}
-		World world = new World(worldName, width, height);
+		Chunk world = new Chunk(worldName, width, height);
 		world.setTileSet(tileSet);
 		currentWorld = world;
 		return true;

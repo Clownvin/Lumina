@@ -4,21 +4,22 @@ import static org.lwjgl.glfw.GLFW.glfwPollEvents;
 
 import org.lwjgl.glfw.GLFWErrorCallback;
 
-import com.clownvin.lumina.graphics.Camera;
 import com.clownvin.lumina.graphics.RenderUtil;
 import com.clownvin.lumina.graphics.Window;
+import com.clownvin.lumina.res.ResourceManager;
 
 public final class LuminaEngine implements Runnable {
-	public static final int WIDTH = 800, HEIGHT = 800;
-
 	private static final LuminaEngine engine = new LuminaEngine();
 
 	private static boolean running = false;
 	private static boolean keepRunning = false;
 	private static double targetFPS = 60.0d;
-	private static int globalImageScale = 32;
+	private static float globalImageScale = 32;
 	private static String globalShader = "testshader";
 	private static Game game = null;
+	private static float pixelRatio = 1.0f/32.0f;
+	private static boolean showWorld = false;
+	private static boolean showGUI = false;
 
 	public static LuminaEngine getEngine() {
 		return engine;
@@ -31,12 +32,17 @@ public final class LuminaEngine implements Runnable {
 		LuminaEngine.targetFPS = targetFPS;
 	}
 
-	public static void setGlobalImageScale(int scale) {
+	public static void setGlobalImageScale(float scale) {
 		globalImageScale = scale;
+		pixelRatio = 1.0f/scale;
 	}
 
-	public static int getGlobalImageScale() {
+	public static float getGlobalImageScale() {
 		return globalImageScale;
+	}
+	
+	public static float getPixelRatio() {
+		return pixelRatio;
 	}
 
 	public static String getGlobalShader() {
@@ -67,11 +73,14 @@ public final class LuminaEngine implements Runnable {
 	}
 
 	private void setup() {
-		Window.createWindow(WIDTH, HEIGHT, game.getTitle());
+		Window.createWindow(game.getTitle());
 		Window.setCursorPosCallback(game.getCursorPosCallback());
 		Window.setKeyCallback(game.getKeyCallback());
 		Window.setMouseButtonCallback(game.getMouseButtonCallback());
 		RenderUtil.initGraphics();
+		game.setup();
+		Window.recalibrate();
+		ResourceManager.getShader(globalShader);
 		Log.log(RenderUtil.getOpenGLVersion() + "\n");
 	}
 
@@ -84,23 +93,21 @@ public final class LuminaEngine implements Runnable {
 	public void run() {
 		setup();
 		running = keepRunning = true;
-		game.setup();
-		Window.recalibrate();
 		game.start();
-		long start = System.nanoTime();
+		long start;
 		while (keepRunning) {
+			start = System.nanoTime();
 			glfwPollEvents();
 			game.update();
-			Camera.updateCamera();
 			render();
 			if (Window.shouldClose())
 				stop();
 			long now = System.nanoTime();
 			long sleeptime = (long) ((1000.0d / targetFPS) - ((double) (now - start) / 1000000.0D));
-			// System.out.println((1000.0d / 60.0d)+" "+(double)(now - start) / 1000000.0D);
-			start = now;
-			if (sleeptime < 0)
+			//System.out.println("Target FPS: "+targetFPS+", "+(1000.0d / targetFPS)+"-"+((double) (now - start) / 1000000.0D)+"="+sleeptime);
+			if (sleeptime <= 0) {
 				continue;
+			}
 			try {
 				Thread.sleep(sleeptime);
 			} catch (InterruptedException e) {
@@ -117,5 +124,21 @@ public final class LuminaEngine implements Runnable {
 
 	public static void stop() {
 		keepRunning = false;
+	}
+
+	public static boolean shouldShowWorld() {
+		return showWorld;
+	}
+
+	public static void setShowWorld(boolean showWorld) {
+		LuminaEngine.showWorld = showWorld;
+	}
+
+	public static boolean shouldShowGUI() {
+		return showGUI;
+	}
+
+	public static void setShowGUI(boolean showGUI) {
+		LuminaEngine.showGUI = showGUI;
 	}
 }

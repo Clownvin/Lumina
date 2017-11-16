@@ -9,11 +9,20 @@ import com.clownvin.lumina.res.ResourceManager;
 
 public class Entity {
 
-	protected float x, y;
+	protected float x, y, width, height;
 	protected int vertexPointer;
+	protected boolean visible = true;
 
 	public Entity() {
 		this(0.0f, 0.0f);
+	}
+	
+	public boolean isVisible() {
+		return visible;
+	}
+	
+	public void setVisible(boolean visible) {
+		this.visible = visible;
 	}
 
 	public Entity(float x, float y) {
@@ -23,7 +32,11 @@ public class Entity {
 	}
 
 	protected float[] getVertices() {
-		return new float[] { -0.5f + x, 0.5f + y, 0.5f + x, 0.5f + y, 0.5f + x, -0.5f + y, -0.5f + x, -0.5f + y };
+		return new float[] { 
+				-0.5f + x, 0.5f + y,
+				0.5f + x, 0.5f + y,
+				0.5f + x, -0.5f + y,
+				-0.5f + x, -0.5f + y };
 	}
 
 	public String getTexture() {

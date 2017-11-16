@@ -3,6 +3,8 @@ package com.clownvin.lumina.graphics;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
+import java.util.LinkedList;
+
 import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
@@ -10,6 +12,7 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 
 import com.clownvin.lumina.LuminaEngine;
+import com.clownvin.lumina.gui.GUIManager;
 import com.clownvin.lumina.res.ResourceManager;
 import com.clownvin.lumina.world.WorldManager;
 
@@ -17,20 +20,45 @@ import static org.lwjgl.opengl.GL.*;
 import static org.lwjgl.opengl.GL11.*;
 
 public final class Window {
+	public static final int WIDTH = 800, HEIGHT = 800;
 
 	private static long window = NULL;
-	private static int width, height;
+	private static int width = WIDTH, height = HEIGHT;
 	private static String title = "";
 	private static GLFWVidMode videoMode = null;
 	private static boolean fullscreen = false;
+	private static final LinkedList<WindowSizeListener> windowSizeListeners = new LinkedList<>();
+	
+	private static GLFWWindowSizeCallback windowResizeCallback = new GLFWWindowSizeCallback() {
+
+		@Override
+		public void invoke(long window, int width, int height) {
+			Window.width = width;
+			Window.height = height;
+			recalibrate();
+			for (WindowSizeListener l : windowSizeListeners) {
+				System.out.println("stuff");
+				l.onWindowResize(width, height);
+			}
+		}
+
+	};
 
 	static {
 		if (!glfwInit())
 			throw new IllegalStateException("Failed to initialize GLFW...");
 		videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 	}
+	
+	public static void addWindowSizeListener(WindowSizeListener listener) {
+		windowSizeListeners.add(listener);
+	}
+	
+	public static void removeWindowSizeListener(WindowSizeListener listener) {
+		windowSizeListeners.remove(listener);
+	}
 
-	public static void createWindow(int width, int height, String title) {
+	public static void createWindow(String title) {
 		if (width > videoMode.width())
 			width = videoMode.width();
 		if (height > videoMode.height())
@@ -39,8 +67,6 @@ public final class Window {
 			width = 800;
 		if (height <= 0)
 			height = 600;
-		Window.width = width;
-		Window.height = height;
 		Window.title = title;
 		glfwWindowHint(GLFW_SAMPLES, 4);
 		window = glfwCreateWindow(width, height, title, fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
@@ -48,32 +74,36 @@ public final class Window {
 			throw new IllegalStateException("Failed to create window...");
 		glfwMakeContextCurrent(window);
 		glfwSwapInterval(1);
-		glfwSetWindowPos(window, (videoMode.width() / 2) - (width / 2), (videoMode.height() / 2) - (height / 2));
-		glfwSetWindowSizeCallback(window, new GLFWWindowSizeCallback() {
-
-			@Override
-			public void invoke(long window, int width, int height) {
-				Window.width = width;
-				Window.height = height;
-				recalibrate();
-			}
-
-		});
+		glfwSetWindowPos(window, (videoMode.width() / 2) - (width / 2) + 1, (videoMode.height() / 2) - (height / 2) + 31);
+		glfwSetWindowSizeCallback(window, windowResizeCallback);
 		createCapabilities();
 		recalibrate();
 		glfwShowWindow(window);
 	}
 
 	public static void setSize(int width, int height) {
-		glfwSetWindowSize(window, width, height);
+		Window.width = width;
+		Window.height = height;
+		if (window != NULL)
+			glfwSetWindowSize(window, width, height);
 	}
 
 	public static void render() {
 		RenderUtil.clearScreen();
-		Shader shader = ResourceManager.getShader(LuminaEngine.getGlobalShader());
-		shader.bind();
-		shader.setUniform("sampler", 0);
-		WorldManager.renderWorld();
+		if (LuminaEngine.shouldShowWorld()) {
+			Camera.updateShader(LuminaEngine.getGlobalShader(), "projection", true);
+			Shader shader = ResourceManager.getShader(LuminaEngine.getGlobalShader());
+			shader.bind();
+			shader.setUniform("sampler", 0);
+			WorldManager.renderWorld();
+		}
+		if (LuminaEngine.shouldShowGUI()) {
+			Camera.updateShader(LuminaEngine.getGlobalShader(), "projection", false);
+			Shader shader = ResourceManager.getShader(LuminaEngine.getGlobalShader());
+			shader.bind();
+			shader.setUniform("sampler", 0);
+			GUIManager.renderGUI();
+		}
 		glfwSwapBuffers(window);
 	}
 
@@ -115,10 +145,11 @@ public final class Window {
 	}
 
 	public static void setFullscreen(boolean fullscreen) {
-		if (fullscreen != Window.fullscreen) {
-			dispose();
-			createWindow(width, height, title);
-		}
+		boolean recreate = fullscreen != Window.fullscreen;
 		Window.fullscreen = fullscreen;
+		if (recreate) {
+			dispose();
+			createWindow(title);
+		}
 	}
 }

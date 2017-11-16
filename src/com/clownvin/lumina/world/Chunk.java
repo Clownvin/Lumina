@@ -4,14 +4,14 @@ import java.util.ArrayList;
 
 import com.clownvin.lumina.entity.Entity;
 
-public class World {
+public class Chunk {
 	private final String name;
 	private final int width, height;
 
 	private ArrayList<Entity> tileSet = new ArrayList<>();
 	private ArrayList<Entity> entities = new ArrayList<>();
 
-	public World(String name, int width, int height) {
+	public Chunk(String name, int width, int height) {
 		this.name = name;
 		this.width = width;
 		this.height = height;
