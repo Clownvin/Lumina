@@ -1,8 +1,20 @@
 package com.clownvin.lumina.entity;
 
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL11.GL_FLOAT;
+import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
+import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
+import static org.lwjgl.opengl.GL11.glDrawElements;
+import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.GL_DYNAMIC_DRAW;
+import static org.lwjgl.opengl.GL15.GL_ELEMENT_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
+import static org.lwjgl.opengl.GL15.glBindBuffer;
+import static org.lwjgl.opengl.GL15.glBufferData;
+import static org.lwjgl.opengl.GL15.glBufferSubData;
+import static org.lwjgl.opengl.GL15.glGenBuffers;
+import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
+import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
+import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 
 import java.util.Hashtable;
 
@@ -14,9 +26,9 @@ import com.clownvin.lumina.res.ResourceManager;
 import com.clownvin.lumina.res.Texture;
 
 public class Entity {
-	
+
 	public static final String IDLE = "idle";
-	
+
 	protected final boolean animated;
 	protected final boolean dynamic;
 	protected boolean visible = true;
@@ -25,14 +37,6 @@ public class Entity {
 	protected Texture texture;
 	protected String animation = IDLE;
 	protected final Hashtable<String, Animation> animationTable;
-	
-	public boolean isVisible() {
-		return visible;
-	}
-	
-	public void setVisible(boolean visible) {
-		this.visible = visible;
-	}
 
 	public Entity(String texture, float x, float y, final boolean dynamic, final boolean animated) {
 		this.x = x;
@@ -44,7 +48,7 @@ public class Entity {
 		this.animated = animated;
 		if (animated) {
 			animationTable = new Hashtable<>();
-			addAnimation(IDLE, new Animation(Integer.MAX_VALUE, new int[] {0}));
+			addAnimation(IDLE, new Animation(Integer.MAX_VALUE, new int[] { 0 }));
 		} else
 			animationTable = null;
 		if (dynamic) {
@@ -57,39 +61,33 @@ public class Entity {
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 		}
 	}
-	
+
 	public void addAnimation(String name, Animation animation) {
 		animationTable.put(name, animation);
 	}
-	
-	public void startAnimation(String name) {
-		Animation a = animationTable.get(name);
-		if (a == null) {
-			System.err.println("No animation in entity for name: "+name);
-			return;
-		}
-		a.reset();
-		animation = name;
+
+	public void destroy() {
+		texture.stopUsing();
 	}
 
-	protected float[] getVertices() {
-		return new float[] { 
-				-0.5f + x, 0.5f + y,
-				0.5f + x, 0.5f + y,
-				0.5f + x, -0.5f + y,
-				-0.5f + x, -0.5f + y };
-	}
-
-	public Texture getTexture() {
-		return texture;
-	}
-	
 	public int getFrame() {
 		if (animated)
 			return animationTable.get(animation).getFrame();
 		return 0;
 	}
-	
+
+	public Texture getTexture() {
+		return texture;
+	}
+
+	protected float[] getVertices() {
+		return new float[] { -0.5f + x, 0.5f + y, 0.5f + x, 0.5f + y, 0.5f + x, -0.5f + y, -0.5f + x, -0.5f + y };
+	}
+
+	public boolean isVisible() {
+		return visible;
+	}
+
 	public void move(Vector2f direction) {
 		if (!dynamic)
 			throw new IllegalStateException("Entity is not marked dynamic, and so cannot move!");
@@ -98,28 +96,8 @@ public class Entity {
 		updateVertices();
 	}
 
-	public void setPosition(Vector2f position) {
-		if (!dynamic)
-			throw new IllegalStateException("Entity is not marked dynamic, and so cannot have it's position set!");
-		x = position.x();
-		y = position.y();
-		updateVertices();
-	}
-
-	private void updateVertices() {
-		if (!dynamic)
-			throw new IllegalStateException("Entity is not marked dynamic, and so cannot update it's vertices!");
-		glBindBuffer(GL_ARRAY_BUFFER, vertexPointer);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, RenderUtil.createBuffer(getVertices()));
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-	}
-	
-	public void destroy() {
-		texture.stopUsing();
-	}
-
 	public void render() {
-		if (animated) 
+		if (animated)
 			animationTable.get(animation).animate();
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
@@ -136,5 +114,35 @@ public class Entity {
 
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
+	}
+
+	public void setPosition(Vector2f position) {
+		if (!dynamic)
+			throw new IllegalStateException("Entity is not marked dynamic, and so cannot have it's position set!");
+		x = position.x();
+		y = position.y();
+		updateVertices();
+	}
+
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+	}
+
+	public void startAnimation(String name) {
+		Animation a = animationTable.get(name);
+		if (a == null) {
+			System.err.println("No animation in entity for name: " + name);
+			return;
+		}
+		a.reset();
+		animation = name;
+	}
+
+	private void updateVertices() {
+		if (!dynamic)
+			throw new IllegalStateException("Entity is not marked dynamic, and so cannot update it's vertices!");
+		glBindBuffer(GL_ARRAY_BUFFER, vertexPointer);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, RenderUtil.createBuffer(getVertices()));
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 }

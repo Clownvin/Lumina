@@ -14,17 +14,12 @@ public final class WorldManager {
 
 	private static Chunk currentWorld;
 
-	public static void renderWorld() {
-		currentWorld.renderTiles();
-		currentWorld.renderEntities();
+	public static void addEntity(Entity entity) {
+		currentWorld.addEntity(entity);
 	}
 
 	public static Chunk getWorld() {
 		return currentWorld;
-	}
-
-	public static void addEntity(Entity entity) {
-		currentWorld.addEntity(entity);
 	}
 
 	public static boolean loadWorld(String worldName) {
@@ -83,5 +78,10 @@ public final class WorldManager {
 		world.setTileSet(tileSet);
 		currentWorld = world;
 		return true;
+	}
+
+	public static void renderWorld() {
+		currentWorld.renderTiles();
+		currentWorld.renderEntities();
 	}
 }

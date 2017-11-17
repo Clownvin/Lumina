@@ -18,18 +18,67 @@ public final class LuminaEngine implements Runnable {
 	private static float globalImageScale = 32;
 	private static String globalShader = "testshader";
 	private static Game game = null;
-	private static float pixelRatio = 1.0f/32.0f;
+	private static float pixelRatio = 1.0f / 32.0f;
 	private static boolean showWorld = false;
 	private static boolean showGUI = false;
 	private static boolean paused = false;
 	private static long gameTime = 0L;
 
+	public static void exit() {
+		keepRunning = false;
+	}
+
+	public static long gameTimeMillis() {
+		return gameTime;
+	}
+
 	public static LuminaEngine getEngine() {
 		return engine;
 	}
-	
-	public static long gameTimeMillis() {
-		return gameTime;
+
+	public static Game getGame() {
+		return game;
+	}
+
+	public static float getGlobalImageScale() {
+		return globalImageScale;
+	}
+
+	public static String getGlobalShader() {
+		return globalShader;
+	}
+
+	public static float getPixelRatio() {
+		return pixelRatio;
+	}
+
+	public static boolean isPaused() {
+		return paused;
+	}
+
+	public static boolean running() {
+		return running;
+	}
+
+	public static void setGlobalImageScale(float scale) {
+		globalImageScale = scale;
+		pixelRatio = 1.0f / scale;
+	}
+
+	public static void setGlobalShader(String globalShader) {
+		LuminaEngine.globalShader = globalShader;
+	}
+
+	public static void setPause(boolean paused) {
+		LuminaEngine.paused = paused;
+	}
+
+	public static void setShowGUI(boolean showGUI) {
+		LuminaEngine.showGUI = showGUI;
+	}
+
+	public static void setShowWorld(boolean showWorld) {
+		LuminaEngine.showWorld = showWorld;
 	}
 
 	public static void setTargetFPS(double targetFPS) {
@@ -38,67 +87,26 @@ public final class LuminaEngine implements Runnable {
 		}
 		LuminaEngine.targetFPS = targetFPS;
 	}
-	
-	public static boolean isPaused() {
-		return paused;
-	}
-	
-	public static void setPause(boolean paused) {
-		LuminaEngine.paused = paused;
+
+	public static boolean shouldShowGUI() {
+		return showGUI;
 	}
 
-	public static void setGlobalImageScale(float scale) {
-		globalImageScale = scale;
-		pixelRatio = 1.0f/scale;
-	}
-
-	public static float getGlobalImageScale() {
-		return globalImageScale;
-	}
-	
-	public static float getPixelRatio() {
-		return pixelRatio;
-	}
-
-	public static String getGlobalShader() {
-		return globalShader;
-	}
-
-	public static void setGlobalShader(String globalShader) {
-		LuminaEngine.globalShader = globalShader;
-	}
-
-	public static boolean running() {
-		return running;
-	}
-
-	public static Game getGame() {
-		return game;
+	public static boolean shouldShowWorld() {
+		return showWorld;
 	}
 
 	private LuminaEngine() {
 		GLFWErrorCallback.createPrint(System.err).set();
 	}
 
-	public void start(Game game) {
-		LuminaEngine.game = game;
-		Thread thread = new Thread(engine);
-		thread.setName("LuminaEngine");
-		thread.start();
-	}
-
-	private void setup() {
-		Window.createWindow(game.getTitle());
-		RenderUtil.init();
-		game.setup();
-		Window.recalibrate();
-		ResourceManager.getShader(globalShader);
-		System.out.println(RenderUtil.getOpenGLVersion());
-	}
-
 	private void cleanUp() {
 		Window.dispose();
 		game.update();
+	}
+
+	private void render() {
+		Window.render();
 	}
 
 	@Override
@@ -119,8 +127,9 @@ public final class LuminaEngine implements Runnable {
 			if (Window.shouldClose())
 				exit();
 			long now = System.nanoTime();
-			long sleeptime = (long) (millisecondsPerFrame - ((double) (now - start) / 1000000.0D));
-			//System.out.println("Target FPS: "+targetFPS+", "+(1000.0d / targetFPS)+"-"+((double) (now - start) / 1000000.0D)+"="+sleeptime);
+			long sleeptime = (long) (millisecondsPerFrame - ((now - start) / 1000000.0D));
+			// System.out.println("Target FPS: "+targetFPS+", "+(1000.0d /
+			// targetFPS)+"-"+((double) (now - start) / 1000000.0D)+"="+sleeptime);
 			if (sleeptime <= 0) {
 				continue;
 			}
@@ -134,27 +143,19 @@ public final class LuminaEngine implements Runnable {
 		cleanUp();
 	}
 
-	private void render() {
-		Window.render();
+	private void setup() {
+		Window.createWindow(game.getTitle());
+		RenderUtil.init();
+		game.setup();
+		Window.recalibrate();
+		ResourceManager.getShader(globalShader);
+		System.out.println(RenderUtil.getOpenGLVersion());
 	}
 
-	public static void exit() {
-		keepRunning = false;
-	}
-
-	public static boolean shouldShowWorld() {
-		return showWorld;
-	}
-
-	public static void setShowWorld(boolean showWorld) {
-		LuminaEngine.showWorld = showWorld;
-	}
-
-	public static boolean shouldShowGUI() {
-		return showGUI;
-	}
-
-	public static void setShowGUI(boolean showGUI) {
-		LuminaEngine.showGUI = showGUI;
+	public void start(Game game) {
+		LuminaEngine.game = game;
+		Thread thread = new Thread(engine);
+		thread.setName("LuminaEngine");
+		thread.start();
 	}
 }

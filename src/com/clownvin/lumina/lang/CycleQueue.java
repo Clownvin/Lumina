@@ -24,16 +24,6 @@ public final class CycleQueue<T> implements Queue<T> {
 		array = new Object[totalAmount];
 		this.deleteWhenFull = deleteWhenFull;
 	}
-	
-	@SuppressWarnings("unchecked")
-	public void reverse() {
-		ensureCorners();
-		for (int i = 0; i < size / 2; i++) {
-			Object o = get(i);
-			set(i, get(size - (i + 1)));
-			set(size - (i + 1), (T) o);
-		}
-	}
 
 	@Override
 	public synchronized boolean add(T e) {
@@ -56,6 +46,12 @@ public final class CycleQueue<T> implements Queue<T> {
 			add(o);
 		}
 		return true;
+	}
+
+	private void checkForConcurrentModification(final long startModifications) {
+		if (startModifications != modifications) {
+			throw new ConcurrentModificationException("CycleQueue was modified by a thread while being accessed.");
+		}
 	}
 
 	@Override
@@ -98,15 +94,15 @@ public final class CycleQueue<T> implements Queue<T> {
 		return get(0);
 	}
 
+	private synchronized void ensureCorners() {
+		takeIndex %= array.length;
+		placeIndex %= array.length;
+	}
+
 	@SuppressWarnings("unchecked")
 	public synchronized T get(int index) {
 		index = (index + takeIndex) % array.length;
 		return (T) array[index];
-	}
-	
-	private synchronized void set(int index, T object) {
-		index = (index + takeIndex) % array.length;
-		array[index] = object;
 	}
 
 	@Override
@@ -221,6 +217,21 @@ public final class CycleQueue<T> implements Queue<T> {
 		return removeAll(list);
 	}
 
+	@SuppressWarnings("unchecked")
+	public void reverse() {
+		ensureCorners();
+		for (int i = 0; i < size / 2; i++) {
+			Object o = get(i);
+			set(i, get(size - (i + 1)));
+			set(size - (i + 1), (T) o);
+		}
+	}
+
+	private synchronized void set(int index, T object) {
+		index = (index + takeIndex) % array.length;
+		array[index] = object;
+	}
+
 	@Override
 	public int size() {
 		return size;
@@ -250,16 +261,5 @@ public final class CycleQueue<T> implements Queue<T> {
 			}
 		}
 		return a;
-	}
-
-	private void checkForConcurrentModification(final long startModifications) {
-		if (startModifications != modifications) {
-			throw new ConcurrentModificationException("CycleQueue was modified by a thread while being accessed.");
-		}
-	}
-
-	private synchronized void ensureCorners() {
-		takeIndex %= array.length;
-		placeIndex %= array.length;
 	}
 }

@@ -6,12 +6,7 @@ import java.util.List;
 
 public final class TaskManager {
 	private static final LinkedList<Task> taskList = new LinkedList<Task>();
-	
-	public static Task startTask(Task task) {
-		taskList.add(task);
-		return task;
-	}
-	
+
 	public static void doTasks() {
 		List<Task> toRemove = new ArrayList<Task>();
 		for (Task task : taskList) {
@@ -21,5 +16,10 @@ public final class TaskManager {
 			}
 		}
 		taskList.removeAll(toRemove);
+	}
+
+	public static Task startTask(Task task) {
+		taskList.add(task);
+		return task;
 	}
 }

@@ -21,20 +21,17 @@ public abstract class GUIComponent extends Entity implements WindowListener, Key
 	public static enum Binding {
 		TOP_LEFT, TOP_RIGHT, TOP_MIDDLE, MIDDLE_RIGHT, MIDDLE_LEFT, BOT_LEFT, BOT_RIGHT, BOT_MIDDLE, MIDDLE, CUSTOM;
 	}
-	
+
 	private float bX, bY;
 	private float fX1, fY1, fX2, fY2;
 	private final Binding binding;
 	private final GUIComponent parent;
 	private final List<GUIComponent> children = new ArrayList<>();
 	private boolean hasFocus = false;
-	
-	private void addChild(GUIComponent component) {
-		children.add(component);
-	}
-	
-	public GUIComponent(String texture, int x, int y, int width, int height, GUIComponent parent, Binding binding, boolean animated) {
-		super(texture, (float) x, (float) y, true, animated);
+
+	public GUIComponent(String texture, int x, int y, int width, int height, GUIComponent parent, Binding binding,
+			boolean animated) {
+		super(texture, x, y, true, animated);
 		this.parent = parent;
 		if (parent != null)
 			parent.addChild(this);
@@ -50,15 +47,47 @@ public abstract class GUIComponent extends Entity implements WindowListener, Key
 		Window.addMouseListener(this);
 		Window.addWindowSizeListener(this);
 	}
-	
+
+	private void addChild(GUIComponent component) {
+		children.add(component);
+	}
+
+	public final float getHeight() {
+		return height;
+	}
+
+	public abstract int getLayer();
+
+	@Override
+	public float[] getVertices() {
+		return new float[] { fX1, fY1, // TR
+				fX2, fY1, // TL
+				fX2, fY2, // BL
+				fX1, fY2 // BR
+		};
+	}
+
+	public final float getWidth() {
+		return width;
+	}
+
+	public final float getX() {
+		return bX;
+	}
+
+	public final float getY() {
+		return bY;
+	}
+
 	public boolean isFocused() {
 		return hasFocus;
 	}
-	
-	public void setFocus(boolean hasFocus) {
-		this.hasFocus = hasFocus;
+
+	@Override
+	public void onWindowResize(int width, int height) {
+		recalculate();
 	}
-	
+
 	public void recalculate() {
 		float w = Window.getWidth(), h = Window.getHeight(), x1 = 0, y1 = 0;
 		if (parent != null) {
@@ -109,7 +138,7 @@ public abstract class GUIComponent extends Entity implements WindowListener, Key
 			bY = y + (h - getHeight());
 			break;
 		default:
-			System.err.println("No case for binding: "+binding);
+			System.err.println("No case for binding: " + binding);
 			break;
 		}
 		fX1 = bX * LuminaEngine.getPixelRatio() + ((-Window.getWidth() / 2) * LuminaEngine.getPixelRatio());
@@ -121,13 +150,16 @@ public abstract class GUIComponent extends Entity implements WindowListener, Key
 			child.recalculate();
 		}
 	}
-	
-	private void updateVertices() {
-		glBindBuffer(GL_ARRAY_BUFFER, vertexPointer);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, RenderUtil.createBuffer(getVertices()));
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	public void setFocus(boolean hasFocus) {
+		this.hasFocus = hasFocus;
 	}
-	
+
+	public final void setHeight(int height) {
+		this.height = height;
+		recalculate();
+	}
+
 	@Override
 	public void setVisible(boolean visible) {
 		super.setVisible(visible);
@@ -137,57 +169,25 @@ public abstract class GUIComponent extends Entity implements WindowListener, Key
 		} else
 			Window.removeWindowSizeListener(this);
 	}
-	
-	public abstract int getLayer();
-	
-	@Override
-	public float[] getVertices() {
-		return new float[] { 
-				fX1, fY1, //TR
-				fX2, fY1, //TL
-				fX2, fY2, //BL
-				fX1, fY2 //BR 
-				};
-	}
-	
-	public final float getX() {
-		return bX;
-	}
-	
-	public final void setX(int x) {
-		this.x = x;
-		recalculate();
-	}
-	
-	public final float getWidth() {
-		return width;
-	}
-	
+
 	public final void setWidth(int width) {
 		this.width = width;
 		recalculate();
 	}
-	
-	public final float getHeight() {
-		return height;
-	}
-	
-	public final void setHeight(int height) {
-		this.height = height;
+
+	public final void setX(int x) {
+		this.x = x;
 		recalculate();
 	}
-	
-	public final float getY() {
-		return bY;
-	}
-	
+
 	public final void setY(int y) {
 		this.y = y;
 		recalculate();
 	}
-	
-	@Override
-	public void onWindowResize(int width, int height) {
-		recalculate();
+
+	private void updateVertices() {
+		glBindBuffer(GL_ARRAY_BUFFER, vertexPointer);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, RenderUtil.createBuffer(getVertices()));
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 }

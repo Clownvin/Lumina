@@ -4,7 +4,7 @@ import com.clownvin.lumina.task.Task;
 
 public abstract class CreateEntityTask extends Task {
 	protected Entity entity = null;
-	
+
 	public Entity getEntity() {
 		while (!finished) {
 			synchronized (this) {

@@ -8,7 +8,7 @@ public class TitleScreen extends GUIComponent {
 	public TitleScreen(String texture) {
 		super(texture, 0, 0, Window.getWidth(), Window.getHeight(), null, Binding.CUSTOM, false);
 	}
-	
+
 	public TitleScreen(String texture, Animation animation) {
 		super(texture, 0, 0, Window.getWidth(), Window.getHeight(), null, Binding.CUSTOM, true);
 		addAnimation(IDLE, animation);
@@ -19,12 +19,10 @@ public class TitleScreen extends GUIComponent {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-	
+
 	@Override
-	public void onWindowResize(int width, int height) {
-		this.width = width;
-		this.height = height;
-		recalculate();
+	public void onCursorPos(double xpos, double ypos) {
+		return;
 	}
 
 	@Override
@@ -33,14 +31,16 @@ public class TitleScreen extends GUIComponent {
 	}
 
 	@Override
-	public void onCursorPos(double xpos, double ypos) {
-		return;
+	public void onMouseButton(int button, int action, int mods) {
+		// TODO Auto-generated method stub
+
 	}
 
 	@Override
-	public void onMouseButton(int button, int action, int mods) {
-		// TODO Auto-generated method stub
-		
+	public void onWindowResize(int width, int height) {
+		this.width = width;
+		this.height = height;
+		recalculate();
 	}
 
 }

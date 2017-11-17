@@ -17,14 +17,24 @@ public class Chunk {
 		this.height = height;
 	}
 
-	public void setTileSet(ArrayList<Entity> tileSet) {
-		this.tileSet = tileSet;
+	public void addEntity(Entity e) {
+		entities.add(e);
 	}
 
-	public void renderTiles() {
-		for (Entity e : tileSet) {
-			e.render();
-		}
+	public int getHeight() {
+		return height;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public void removeEntity(Entity e) {
+		entities.remove(e);
 	}
 
 	public void renderEntities() {
@@ -33,23 +43,13 @@ public class Chunk {
 		}
 	}
 
-	public void addEntity(Entity e) {
-		entities.add(e);
+	public void renderTiles() {
+		for (Entity e : tileSet) {
+			e.render();
+		}
 	}
 
-	public void removeEntity(Entity e) {
-		entities.remove(e);
-	}
-
-	public int getHeight() {
-		return height;
-	}
-
-	public int getWidth() {
-		return width;
-	}
-
-	public String getName() {
-		return name;
+	public void setTileSet(ArrayList<Entity> tileSet) {
+		this.tileSet = tileSet;
 	}
 }

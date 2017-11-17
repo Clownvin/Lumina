@@ -1,7 +1,26 @@
 package com.clownvin.lumina.graphics;
 
-import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.system.MemoryUtil.*;
+import static org.lwjgl.glfw.GLFW.GLFW_SAMPLES;
+import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
+import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
+import static org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor;
+import static org.lwjgl.glfw.GLFW.glfwGetVideoMode;
+import static org.lwjgl.glfw.GLFW.glfwInit;
+import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
+import static org.lwjgl.glfw.GLFW.glfwSetCursorPosCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetKeyCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetMouseButtonCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowSize;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowSizeCallback;
+import static org.lwjgl.glfw.GLFW.glfwShowWindow;
+import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
+import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
+import static org.lwjgl.glfw.GLFW.glfwWindowHint;
+import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
+import static org.lwjgl.opengl.GL.createCapabilities;
+import static org.lwjgl.opengl.GL11.glViewport;
+import static org.lwjgl.system.MemoryUtil.NULL;
 
 import java.util.LinkedList;
 
@@ -19,9 +38,6 @@ import com.clownvin.lumina.input.WindowListener;
 import com.clownvin.lumina.res.ResourceManager;
 import com.clownvin.lumina.world.WorldManager;
 
-import static org.lwjgl.opengl.GL.*;
-import static org.lwjgl.opengl.GL11.*;
-
 public final class Window {
 	public static final int WIDTH = 800, HEIGHT = 800;
 
@@ -34,7 +50,7 @@ public final class Window {
 	private static final LinkedList<KeyListener> keyListeners = new LinkedList<>();
 	private static final LinkedList<MouseListener> mouseListeners = new LinkedList<>();
 	private static double cursorX = 0.0d, cursorY = 0.0d;
-	
+
 	protected static final GLFWKeyCallback KEY_CALLBACK = new GLFWKeyCallback() {
 
 		@Override
@@ -42,9 +58,9 @@ public final class Window {
 			for (KeyListener listener : keyListeners)
 				listener.onKey(key, scancode, action, mods);
 		}
-		
+
 	};
-	
+
 	private static final GLFWWindowSizeCallback WINDOW_RESIZE_CALLBACK = new GLFWWindowSizeCallback() {
 
 		@Override
@@ -58,7 +74,7 @@ public final class Window {
 		}
 
 	};
-	
+
 	private static final GLFWMouseButtonCallback MOUSE_BUTTON_CALLBACK = new GLFWMouseButtonCallback() {
 
 		@Override
@@ -67,9 +83,9 @@ public final class Window {
 				listener.onMouseButton(button, action, mods);
 			}
 		}
-		
+
 	};
-	
+
 	private static final GLFWCursorPosCallback CURSOR_POS_CALLBACK = new GLFWCursorPosCallback() {
 
 		@Override
@@ -80,7 +96,7 @@ public final class Window {
 				listener.onCursorPos(xpos, ypos);
 			}
 		}
-		
+
 	};
 
 	static {
@@ -88,37 +104,17 @@ public final class Window {
 			throw new IllegalStateException("Failed to initialize GLFW...");
 		videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 	}
-	
-	public static void addWindowSizeListener(WindowListener listener) {
-		windowListeners.add(listener);
-	}
-	
-	public static void removeWindowSizeListener(WindowListener listener) {
-		windowListeners.remove(listener);
-	}
-	
+
 	public static void addKeyListener(KeyListener listener) {
 		keyListeners.add(listener);
 	}
-	
-	public static void removeKeyListener(KeyListener listener) {
-		keyListeners.remove(listener);
-	}
-	
+
 	public static void addMouseListener(MouseListener listener) {
 		mouseListeners.add(listener);
 	}
-	
-	public static void removeMouseListener(MouseListener listener) {
-		mouseListeners.remove(listener);
-	}
-	
-	public static double getCursorX() {
-		return cursorX;
-	}
-	
-	public static double getCursorY() {
-		return cursorY;
+
+	public static void addWindowSizeListener(WindowListener listener) {
+		windowListeners.add(listener);
 	}
 
 	public static void createWindow(String title) {
@@ -137,7 +133,8 @@ public final class Window {
 			throw new IllegalStateException("Failed to create window...");
 		glfwMakeContextCurrent(window);
 		glfwSwapInterval(1);
-		glfwSetWindowPos(window, (videoMode.width() / 2) - (width / 2) + 1, (videoMode.height() / 2) - (height / 2) + 31);
+		glfwSetWindowPos(window, (videoMode.width() / 2) - (width / 2) + 1,
+				(videoMode.height() / 2) - (height / 2) + 31);
 		glfwSetWindowSizeCallback(window, WINDOW_RESIZE_CALLBACK);
 		glfwSetKeyCallback(window, KEY_CALLBACK);
 		glfwSetMouseButtonCallback(window, MOUSE_BUTTON_CALLBACK);
@@ -147,11 +144,45 @@ public final class Window {
 		glfwShowWindow(window);
 	}
 
-	public static void setSize(int width, int height) {
-		Window.width = width;
-		Window.height = height;
-		if (window != NULL)
-			glfwSetWindowSize(window, width, height);
+	public static void dispose() {
+		glfwDestroyWindow(window);
+	}
+
+	public static double getCursorX() {
+		return cursorX;
+	}
+
+	public static double getCursorY() {
+		return cursorY;
+	}
+
+	public static int getHeight() {
+		return height;
+	}
+
+	public static int getWidth() {
+		return width;
+	}
+
+	public static boolean isFullscreen() {
+		return fullscreen;
+	}
+
+	public static void recalibrate() {
+		Camera.resizeMatrix(width, height, LuminaEngine.getGlobalImageScale());
+		glViewport(0, 0, width, height);
+	}
+
+	public static void removeKeyListener(KeyListener listener) {
+		keyListeners.remove(listener);
+	}
+
+	public static void removeMouseListener(MouseListener listener) {
+		mouseListeners.remove(listener);
+	}
+
+	public static void removeWindowSizeListener(WindowListener listener) {
+		windowListeners.remove(listener);
 	}
 
 	public static void render() {
@@ -173,41 +204,8 @@ public final class Window {
 		glfwSwapBuffers(window);
 	}
 
-	public static boolean shouldClose() {
-		return glfwWindowShouldClose(window);
-	}
-
-	public static int getWidth() {
-		return width;
-	}
-
-	public static int getHeight() {
-		return height;
-	}
-
-	public static void dispose() {
-		glfwDestroyWindow(window);
-	}
-
-	public static void recalibrate() {
-		Camera.resizeMatrix(width, height, LuminaEngine.getGlobalImageScale());
-		glViewport(0, 0, width, height);
-	}
-
-	public static void setKeyCallback(GLFWKeyCallback callback) {
-		glfwSetKeyCallback(window, callback);
-	}
-
 	public static void setCursorPosCallback(GLFWCursorPosCallback callback) {
 		glfwSetCursorPosCallback(window, callback);
-	}
-
-	public static void setMouseButtonCallback(GLFWMouseButtonCallback callback) {
-		glfwSetMouseButtonCallback(window, callback);
-	}
-
-	public static boolean isFullscreen() {
-		return fullscreen;
 	}
 
 	public static void setFullscreen(boolean fullscreen) {
@@ -217,5 +215,24 @@ public final class Window {
 			dispose();
 			createWindow(title);
 		}
+	}
+
+	public static void setKeyCallback(GLFWKeyCallback callback) {
+		glfwSetKeyCallback(window, callback);
+	}
+
+	public static void setMouseButtonCallback(GLFWMouseButtonCallback callback) {
+		glfwSetMouseButtonCallback(window, callback);
+	}
+
+	public static void setSize(int width, int height) {
+		Window.width = width;
+		Window.height = height;
+		if (window != NULL)
+			glfwSetWindowSize(window, width, height);
+	}
+
+	public static boolean shouldClose() {
+		return glfwWindowShouldClose(window);
 	}
 }

@@ -1,5 +1,17 @@
 package com.clownvin.lumina.res;
 
+import static org.lwjgl.opengl.GL11.GL_NEAREST;
+import static org.lwjgl.opengl.GL11.GL_RGBA;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
+import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
+import static org.lwjgl.opengl.GL11.glBindTexture;
+import static org.lwjgl.opengl.GL11.glDeleteTextures;
+import static org.lwjgl.opengl.GL11.glGenTextures;
+import static org.lwjgl.opengl.GL11.glTexImage2D;
+import static org.lwjgl.opengl.GL11.glTexParameterf;
+
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,36 +28,11 @@ import org.lwjgl.BufferUtils;
 
 import com.clownvin.lumina.graphics.Shader;
 
-import static org.lwjgl.opengl.GL11.*;
-
 public final class ResourceManager {
 	public static final String RESOURCE_PATH = "./res/";
 	public static final String TEXTURE_PATH = "textures/";
 	private static final Hashtable<String, Texture> textureTable = new Hashtable<>();
 	private static final Hashtable<String, Shader> shaderTable = new Hashtable<>();
-
-	public static String readShader(String fileName) {
-		StringBuilder shaderSource = new StringBuilder();
-		BufferedReader reader = null;
-		try {
-			reader = new BufferedReader(new FileReader(RESOURCE_PATH + fileName));
-			String line;
-			while ((line = reader.readLine()) != null) {
-				shaderSource.append(line).append("\n");
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
-		} finally {
-			try {
-				reader.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
-		}
-		return shaderSource.toString();
-	}
 
 	public static Shader getShader(String name) {
 		Shader shader = shaderTable.get(name);
@@ -64,21 +51,13 @@ public final class ResourceManager {
 		}
 		return texture;
 	}
-	
-	public static void releaseTextures() {
-		List<String> toRelease = new ArrayList<String>();
-		for (String texName : textureTable.keySet()) {
-			if (textureTable.get(texName).usageCount > 0)
-				continue;
-			toRelease.add(texName);
-		}
-		for (String texName : toRelease) {
-			Texture texture = textureTable.get(texName);
-			textureTable.remove(texName);
-			glDeleteTextures(texture.getId());
-			texture.released = true;
-		}
-		
+
+	public static Texture loadTexture(String name) {
+		return loadTexture(name, "png");
+	}
+
+	public static AnimatedTexture loadTexture(String name, int spriteWidth, int spriteHeight) {
+		return loadTexture(name, "png", spriteWidth, spriteHeight);
 	}
 
 	public static Texture loadTexture(String name, String format) {
@@ -121,7 +100,7 @@ public final class ResourceManager {
 		textureTable.put(name, texture);
 		return texture;
 	}
-	
+
 	public static AnimatedTexture loadTexture(String name, String format, int spriteWidth, int spriteHeight) {
 		BufferedImage bufferedImage = null;
 		try {
@@ -162,12 +141,43 @@ public final class ResourceManager {
 		textureTable.put(name, texture);
 		return texture;
 	}
-	
-	public static AnimatedTexture loadTexture(String name, int spriteWidth, int spriteHeight) {
-		return loadTexture(name, "png", spriteWidth, spriteHeight);
+
+	public static String readShader(String fileName) {
+		StringBuilder shaderSource = new StringBuilder();
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new FileReader(RESOURCE_PATH + fileName));
+			String line;
+			while ((line = reader.readLine()) != null) {
+				shaderSource.append(line).append("\n");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		} finally {
+			try {
+				reader.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
+		}
+		return shaderSource.toString();
 	}
 
-	public static Texture loadTexture(String name) {
-		return loadTexture(name, "png");
+	public static void releaseTextures() {
+		List<String> toRelease = new ArrayList<String>();
+		for (String texName : textureTable.keySet()) {
+			if (textureTable.get(texName).usageCount > 0)
+				continue;
+			toRelease.add(texName);
+		}
+		for (String texName : toRelease) {
+			Texture texture = textureTable.get(texName);
+			textureTable.remove(texName);
+			glDeleteTextures(texture.getId());
+			texture.released = true;
+		}
+
 	}
 }

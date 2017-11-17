@@ -9,9 +9,9 @@ import com.clownvin.lumina.graphics.Camera;
 import com.clownvin.lumina.graphics.Window;
 import com.clownvin.lumina.gui.Button;
 import com.clownvin.lumina.gui.ChatBox;
+import com.clownvin.lumina.gui.GUIComponent.Binding;
 import com.clownvin.lumina.gui.GUIManager;
 import com.clownvin.lumina.gui.TitleScreen;
-import com.clownvin.lumina.gui.GUIComponent.Binding;
 import com.clownvin.lumina.input.KeyListener;
 import com.clownvin.lumina.input.MouseListener;
 import com.clownvin.lumina.res.ResourceManager;
@@ -19,20 +19,17 @@ import com.clownvin.lumina.world.WorldManager;
 
 public class TestGame extends Game {
 
-	public static float moveAmount = 2.0f/64.0f;
-
-	public Entity player;
+	public static float moveAmount = 2.0f / 64.0f;
 
 	public static void main(String[] args) {
 		TestGame game = new TestGame();
 		LuminaEngine.getEngine().start(game);
 	}
 
-	public TestGame() {
-
-	}
+	public Entity player;
 
 	public boolean moving = false;
+
 	public boolean running = false;
 	public Vector2f directionVector = new Vector2f(0.0f, 0.0f);
 	public Vector2f movementVector = new Vector2f(0.0f, 0.0f);
@@ -73,12 +70,13 @@ public class TestGame extends Game {
 			case 0x100: // ESCAPE
 				LuminaEngine.exit();
 				break;
-			case 0x20: //SPACEBAR
+			case 0x20: // SPACEBAR
 				if (action == 1)
 					LuminaEngine.setPause(!LuminaEngine.isPaused());
 				break;
 			default:
-				System.out.println("key: " + key + ", scancode: " + scancode + ", action: " + action + ", mods: " + mods);
+				System.out
+						.println("key: " + key + ", scancode: " + scancode + ", action: " + action + ", mods: " + mods);
 				break;
 			}
 			if (directionVector.length() != 0) {
@@ -88,41 +86,38 @@ public class TestGame extends Game {
 				movementVector = new Vector2f(0.0f, 0.0f);
 			}
 		}
-		
+
 	};
-	
 	public final MouseListener mouseListener = new MouseListener() {
 
 		@Override
 		public void onCursorPos(double xpos, double ypos) {
-			System.out.println("x: "+xpos+", y: "+ypos);
+			System.out.println("x: " + xpos + ", y: " + ypos);
 		}
 
 		@Override
 		public void onMouseButton(int button, int action, int mods) {
 			switch (button) {
-			case 0: //LEFT CLICK
+			case 0: // LEFT CLICK
 				titleScreen.setVisible(false);
 				LuminaEngine.setShowWorld(true);
 				break;
 			default:
 				System.out.println("button: " + button + ", action: " + action + ", mods: " + mods);
 				break;
-				
+
 			}
 		}
-		
+
 	};
+
+	public TestGame() {
+
+	}
 
 	@Override
 	public String getTitle() {
 		return "Lumina Test";
-	}
-
-	@Override
-	public void update() {
-		Camera.move(new Vector2f(0.0f, 0.0f).sub(movementVector));
-		player.move(movementVector);
 	}
 
 	@Override
@@ -141,5 +136,11 @@ public class TestGame extends Game {
 		WorldManager.loadWorld("test");
 		player = new Entity("test1", 0, 0, true, true);
 		WorldManager.getWorld().addEntity(player);
+	}
+
+	@Override
+	public void update() {
+		Camera.move(new Vector2f(0.0f, 0.0f).sub(movementVector));
+		player.move(movementVector);
 	}
 }
