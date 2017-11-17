@@ -27,4 +27,20 @@ public class TitleScreen extends GUIComponent {
 		recalculate();
 	}
 
+	@Override
+	public void onKey(int key, int scancode, int action, int mods) {
+		return;
+	}
+
+	@Override
+	public void onCursorPos(double xpos, double ypos) {
+		return;
+	}
+
+	@Override
+	public void onMouseButton(int button, int action, int mods) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

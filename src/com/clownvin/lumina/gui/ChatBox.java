@@ -11,4 +11,22 @@ public class ChatBox extends GUIComponent {
 		return 0;
 	}
 
+	@Override
+	public void onKey(int key, int scancode, int action, int mods) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onCursorPos(double xpos, double ypos) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onMouseButton(int button, int action, int mods) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

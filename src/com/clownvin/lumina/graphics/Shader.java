@@ -7,7 +7,6 @@ import java.nio.FloatBuffer;
 import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 
-import com.clownvin.lumina.Log;
 import com.clownvin.lumina.res.ResourceManager;
 
 public class Shader {
@@ -23,14 +22,14 @@ public class Shader {
 		glShaderSource(vs, ResourceManager.readShader(SHADER_PATH + name + ".vs"));
 		glCompileShader(vs);
 		if (glGetShaderi(vs, GL_COMPILE_STATUS) != 1) {
-			Log.logE(glGetShaderInfoLog(vs) + "\n");
+			System.err.println(glGetShaderInfoLog(vs));
 			System.exit(1);
 		}
 		fs = glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(fs, ResourceManager.readShader(SHADER_PATH + name + ".fs"));
 		glCompileShader(fs);
 		if (glGetShaderi(fs, GL_COMPILE_STATUS) != 1) {
-			Log.logE(glGetShaderInfoLog(fs) + "\n");
+			System.err.println(glGetShaderInfoLog(fs));
 			System.exit(1);
 		}
 		glAttachShader(program, vs);
@@ -41,12 +40,12 @@ public class Shader {
 
 		glLinkProgram(program);
 		if (glGetProgrami(program, GL_LINK_STATUS) != 1) {
-			Log.logE(glGetProgramInfoLog(program) + "\n");
+			System.err.println(glGetProgramInfoLog(program));
 			System.exit(1);
 		}
 		glValidateProgram(program);
 		if (glGetProgrami(program, GL_VALIDATE_STATUS) != 1) {
-			Log.logE(glGetProgramInfoLog(program) + "\n");
+			System.err.println(glGetProgramInfoLog(program));
 			System.exit(1);
 		}
 	}
@@ -54,7 +53,7 @@ public class Shader {
 	public void setUniform(String name, Object value) {
 		Integer pointer = glGetUniformLocation(program, name);
 		if (pointer == -1) {
-			Log.logE("Failed to get uniform location...\n");
+			System.err.println("Failed to get uniform location...");
 			System.exit(1);
 		}
 		if (value instanceof Integer) {
@@ -66,7 +65,7 @@ public class Shader {
 			((Matrix4f) value).get(buffer);
 			glUniformMatrix4fv(pointer, false, buffer);
 		} else {
-			Log.logE("No case for uniform type.\n");
+			System.err.println("No case for uniform type.");
 		}
 	}
 

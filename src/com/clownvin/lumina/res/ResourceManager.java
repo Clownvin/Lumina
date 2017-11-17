@@ -6,7 +6,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -19,7 +21,6 @@ import static org.lwjgl.opengl.GL11.*;
 public final class ResourceManager {
 	public static final String RESOURCE_PATH = "./res/";
 	public static final String TEXTURE_PATH = "textures/";
-
 	private static final Hashtable<String, Texture> textureTable = new Hashtable<>();
 	private static final Hashtable<String, Shader> shaderTable = new Hashtable<>();
 
@@ -63,6 +64,22 @@ public final class ResourceManager {
 		}
 		return texture;
 	}
+	
+	public static void releaseTextures() {
+		List<String> toRelease = new ArrayList<String>();
+		for (String texName : textureTable.keySet()) {
+			if (textureTable.get(texName).usageCount > 0)
+				continue;
+			toRelease.add(texName);
+		}
+		for (String texName : toRelease) {
+			Texture texture = textureTable.get(texName);
+			textureTable.remove(texName);
+			glDeleteTextures(texture.getId());
+			texture.released = true;
+		}
+		
+	}
 
 	public static Texture loadTexture(String name, String format) {
 		BufferedImage bufferedImage = null;
@@ -100,7 +117,7 @@ public final class ResourceManager {
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-		Texture texture = new Texture(id);
+		Texture texture = new Texture(id, name);
 		textureTable.put(name, texture);
 		return texture;
 	}
@@ -141,7 +158,7 @@ public final class ResourceManager {
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-		AnimatedTexture texture = new AnimatedTexture(id, spriteWidth, spriteHeight, width, height);
+		AnimatedTexture texture = new AnimatedTexture(id, name, spriteWidth, spriteHeight, width, height);
 		textureTable.put(name, texture);
 		return texture;
 	}

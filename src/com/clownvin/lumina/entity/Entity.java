@@ -8,10 +8,10 @@ import java.util.Hashtable;
 
 import org.joml.Vector2f;
 
-import com.clownvin.lumina.Log;
 import com.clownvin.lumina.graphics.RenderUtil;
 import com.clownvin.lumina.res.Animation;
 import com.clownvin.lumina.res.ResourceManager;
+import com.clownvin.lumina.res.Texture;
 
 public class Entity {
 	
@@ -22,7 +22,7 @@ public class Entity {
 	protected boolean visible = true;
 	protected float x, y, width, height;
 	protected int vertexPointer;
-	protected String texture;
+	protected Texture texture;
 	protected String animation = IDLE;
 	protected final Hashtable<String, Animation> animationTable;
 	
@@ -37,13 +37,14 @@ public class Entity {
 	public Entity(String texture, float x, float y, final boolean dynamic, final boolean animated) {
 		this.x = x;
 		this.y = y;
-		this.texture = texture;
+		this.texture = ResourceManager.getTexture(texture);
+		this.texture.use();
 		vertexPointer = glGenBuffers();
 		this.dynamic = dynamic;
 		this.animated = animated;
 		if (animated) {
 			animationTable = new Hashtable<>();
-			addAnimation(IDLE, new Animation(Integer.MAX_VALUE, new int[] {14}));
+			addAnimation(IDLE, new Animation(Integer.MAX_VALUE, new int[] {0}));
 		} else
 			animationTable = null;
 		if (dynamic) {
@@ -64,7 +65,7 @@ public class Entity {
 	public void startAnimation(String name) {
 		Animation a = animationTable.get(name);
 		if (a == null) {
-			Log.logD("No animation in entity for name: "+name+"\n");
+			System.err.println("No animation in entity for name: "+name);
 			return;
 		}
 		a.reset();
@@ -79,7 +80,7 @@ public class Entity {
 				-0.5f + x, -0.5f + y };
 	}
 
-	public String getTexture() {
+	public Texture getTexture() {
 		return texture;
 	}
 	
@@ -112,13 +113,17 @@ public class Entity {
 		glBufferSubData(GL_ARRAY_BUFFER, 0, RenderUtil.createBuffer(getVertices()));
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
+	
+	public void destroy() {
+		texture.stopUsing();
+	}
 
 	public void render() {
 		if (animated) 
 			animationTable.get(animation).animate();
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
-		ResourceManager.getTexture(getTexture()).bind(0, getFrame());
+		getTexture().bind(0, getFrame());
 
 		glBindBuffer(GL_ARRAY_BUFFER, vertexPointer);
 		glVertexAttribPointer(0, 2, GL_FLOAT, false, 0, 0);

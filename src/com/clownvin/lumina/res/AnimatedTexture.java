@@ -13,7 +13,6 @@ import static org.lwjgl.opengl.GL15.glBufferSubData;
 import static org.lwjgl.opengl.GL15.glGenBuffers;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 
-import com.clownvin.lumina.Log;
 import com.clownvin.lumina.graphics.RenderUtil;
 
 public class AnimatedTexture extends Texture {
@@ -21,8 +20,8 @@ public class AnimatedTexture extends Texture {
 	private final int spriteWidth, spriteHeight, texWidth, texHeight, texPointer;
 	private int lastFrameIndex = 0;
 	
-	public AnimatedTexture(int id, int spriteWidth, int spriteHeight, int texWidth, int texHeight) {
-		super(id);
+	public AnimatedTexture(int id, String name, int spriteWidth, int spriteHeight, int texWidth, int texHeight) {
+		super(id, name);
 		this.spriteWidth = spriteWidth;
 		this.spriteHeight = spriteHeight;
 		this.texWidth = texWidth;
@@ -56,7 +55,7 @@ public class AnimatedTexture extends Texture {
 	@Override
 	public void bind(int sampler, int frameIndex) {
 		if (sampler < 0 || sampler > 31) {
-			Log.logE("Sampler out of range");
+			System.err.println("Sampler out of range");
 			new Exception().printStackTrace();
 			return;
 		}

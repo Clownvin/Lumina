@@ -7,6 +7,7 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import com.clownvin.lumina.graphics.RenderUtil;
 import com.clownvin.lumina.graphics.Window;
 import com.clownvin.lumina.res.ResourceManager;
+import com.clownvin.lumina.task.TaskManager;
 
 public final class LuminaEngine implements Runnable {
 	private static final LuminaEngine engine = new LuminaEngine();
@@ -88,11 +89,11 @@ public final class LuminaEngine implements Runnable {
 
 	private void setup() {
 		Window.createWindow(game.getTitle());
-		RenderUtil.initGraphics();
+		RenderUtil.init();
 		game.setup();
 		Window.recalibrate();
 		ResourceManager.getShader(globalShader);
-		Log.log(RenderUtil.getOpenGLVersion() + "\n");
+		System.out.println(RenderUtil.getOpenGLVersion());
 	}
 
 	private void cleanUp() {
@@ -104,7 +105,6 @@ public final class LuminaEngine implements Runnable {
 	public void run() {
 		setup();
 		running = keepRunning = true;
-		game.start();
 		long start;
 		while (keepRunning) {
 			start = System.nanoTime();
@@ -113,6 +113,7 @@ public final class LuminaEngine implements Runnable {
 			if (!paused) {
 				game.update();
 				render();
+				TaskManager.doTasks();
 				gameTime += millisecondsPerFrame;
 			}
 			if (Window.shouldClose())

@@ -4,15 +4,17 @@ import org.joml.Vector2f;
 
 import com.clownvin.lumina.Game;
 import com.clownvin.lumina.LuminaEngine;
-import com.clownvin.lumina.Log;
 import com.clownvin.lumina.entity.Entity;
 import com.clownvin.lumina.graphics.Camera;
 import com.clownvin.lumina.graphics.Window;
+import com.clownvin.lumina.gui.Button;
 import com.clownvin.lumina.gui.ChatBox;
 import com.clownvin.lumina.gui.GUIManager;
 import com.clownvin.lumina.gui.TitleScreen;
+import com.clownvin.lumina.gui.GUIComponent.Binding;
 import com.clownvin.lumina.input.KeyListener;
 import com.clownvin.lumina.input.MouseListener;
+import com.clownvin.lumina.res.ResourceManager;
 import com.clownvin.lumina.world.WorldManager;
 
 public class TestGame extends Game {
@@ -22,7 +24,6 @@ public class TestGame extends Game {
 	public Entity player;
 
 	public static void main(String[] args) {
-		Log.setDebug(true);
 		TestGame game = new TestGame();
 		LuminaEngine.getEngine().start(game);
 	}
@@ -77,8 +78,7 @@ public class TestGame extends Game {
 					LuminaEngine.setPause(!LuminaEngine.isPaused());
 				break;
 			default:
-				Log.log("key: " + key + ", scancode: " + scancode + ", action: " + action + ", mods: " + mods
-						+ "\n");
+				System.out.println("key: " + key + ", scancode: " + scancode + ", action: " + action + ", mods: " + mods);
 				break;
 			}
 			if (directionVector.length() != 0) {
@@ -95,7 +95,7 @@ public class TestGame extends Game {
 
 		@Override
 		public void onCursorPos(double xpos, double ypos) {
-			Log.logD("x: "+xpos+", y: "+ypos+"\n");
+			System.out.println("x: "+xpos+", y: "+ypos);
 		}
 
 		@Override
@@ -106,7 +106,7 @@ public class TestGame extends Game {
 				LuminaEngine.setShowWorld(true);
 				break;
 			default:
-				Log.log("button: " + button + ", action: " + action + ", mods: " + mods + "\n");
+				System.out.println("button: " + button + ", action: " + action + ", mods: " + mods);
 				break;
 				
 			}
@@ -120,7 +120,7 @@ public class TestGame extends Game {
 	}
 
 	@Override
-	public void onUpdate() {
+	public void update() {
 		Camera.move(new Vector2f(0.0f, 0.0f).sub(movementVector));
 		player.move(movementVector);
 	}
@@ -134,11 +134,12 @@ public class TestGame extends Game {
 		LuminaEngine.setShowWorld(false);
 		LuminaEngine.setShowGUI(true);
 		titleScreen = new TitleScreen("title1");
+		ResourceManager.loadTexture("button1", 64, 64);
 		GUIManager.addGUIComponent(new ChatBox("chatbox1", 500, 200));
+		GUIManager.addGUIComponent(new Button("button1", 0, 0, 192, 64, null, Binding.CUSTOM));
 		GUIManager.addGUIComponent(titleScreen);
 		WorldManager.loadWorld("test");
 		player = new Entity("test1", 0, 0, true, true);
 		WorldManager.getWorld().addEntity(player);
 	}
-
 }

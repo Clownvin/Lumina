@@ -13,9 +13,11 @@ import com.clownvin.lumina.LuminaEngine;
 import com.clownvin.lumina.entity.Entity;
 import com.clownvin.lumina.graphics.RenderUtil;
 import com.clownvin.lumina.graphics.Window;
+import com.clownvin.lumina.input.KeyListener;
+import com.clownvin.lumina.input.MouseListener;
 import com.clownvin.lumina.input.WindowListener;
 
-public abstract class GUIComponent extends Entity implements WindowListener {
+public abstract class GUIComponent extends Entity implements WindowListener, KeyListener, MouseListener {
 	public static enum Binding {
 		TOP_LEFT, TOP_RIGHT, TOP_MIDDLE, MIDDLE_RIGHT, MIDDLE_LEFT, BOT_LEFT, BOT_RIGHT, BOT_MIDDLE, MIDDLE, CUSTOM;
 	}
@@ -25,6 +27,7 @@ public abstract class GUIComponent extends Entity implements WindowListener {
 	private final Binding binding;
 	private final GUIComponent parent;
 	private final List<GUIComponent> children = new ArrayList<>();
+	private boolean hasFocus = false;
 	
 	private void addChild(GUIComponent component) {
 		children.add(component);
@@ -43,6 +46,17 @@ public abstract class GUIComponent extends Entity implements WindowListener {
 		glBufferData(GL_ARRAY_BUFFER, RenderUtil.createBuffer(getVertices()), GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		setVisible(true);
+		Window.addKeyListener(this);
+		Window.addMouseListener(this);
+		Window.addWindowSizeListener(this);
+	}
+	
+	public boolean isFocused() {
+		return hasFocus;
+	}
+	
+	public void setFocus(boolean hasFocus) {
+		this.hasFocus = hasFocus;
 	}
 	
 	public void recalculate() {
@@ -95,7 +109,7 @@ public abstract class GUIComponent extends Entity implements WindowListener {
 			bY = y + (h - getHeight());
 			break;
 		default:
-			System.out.println("No case for binding: "+binding);
+			System.err.println("No case for binding: "+binding);
 			break;
 		}
 		fX1 = bX * LuminaEngine.getPixelRatio() + ((-Window.getWidth() / 2) * LuminaEngine.getPixelRatio());

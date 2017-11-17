@@ -6,7 +6,7 @@ import static org.lwjgl.opengl.GL15.*;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-import org.lwjglx.BufferUtils;
+import org.lwjgl.BufferUtils;
 
 public final class RenderUtil {
 	private static int staticTexPointer, indicesPointer;
@@ -22,7 +22,7 @@ public final class RenderUtil {
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
-	public static void initGraphics() {
+	public static void init() {
 		glEnable(GL_TEXTURE_2D);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);

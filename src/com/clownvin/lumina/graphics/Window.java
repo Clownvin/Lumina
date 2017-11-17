@@ -33,6 +33,7 @@ public final class Window {
 	private static final LinkedList<WindowListener> windowListeners = new LinkedList<>();
 	private static final LinkedList<KeyListener> keyListeners = new LinkedList<>();
 	private static final LinkedList<MouseListener> mouseListeners = new LinkedList<>();
+	private static double cursorX = 0.0d, cursorY = 0.0d;
 	
 	protected static final GLFWKeyCallback KEY_CALLBACK = new GLFWKeyCallback() {
 
@@ -73,6 +74,8 @@ public final class Window {
 
 		@Override
 		public void invoke(long window, double xpos, double ypos) {
+			cursorX = xpos;
+			cursorY = ypos;
 			for (MouseListener listener : mouseListeners) {
 				listener.onCursorPos(xpos, ypos);
 			}
@@ -108,6 +111,14 @@ public final class Window {
 	
 	public static void removeMouseListener(MouseListener listener) {
 		mouseListeners.remove(listener);
+	}
+	
+	public static double getCursorX() {
+		return cursorX;
+	}
+	
+	public static double getCursorY() {
+		return cursorY;
 	}
 
 	public static void createWindow(String title) {
