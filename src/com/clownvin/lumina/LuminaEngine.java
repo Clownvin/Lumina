@@ -20,9 +20,15 @@ public final class LuminaEngine implements Runnable {
 	private static float pixelRatio = 1.0f/32.0f;
 	private static boolean showWorld = false;
 	private static boolean showGUI = false;
+	private static boolean paused = false;
+	private static long gameTime = 0L;
 
 	public static LuminaEngine getEngine() {
 		return engine;
+	}
+	
+	public static long gameTimeMillis() {
+		return gameTime;
 	}
 
 	public static void setTargetFPS(double targetFPS) {
@@ -30,6 +36,14 @@ public final class LuminaEngine implements Runnable {
 			throw new IllegalArgumentException("Target FPS must be at least greater than 0.");
 		}
 		LuminaEngine.targetFPS = targetFPS;
+	}
+	
+	public static boolean isPaused() {
+		return paused;
+	}
+	
+	public static void setPause(boolean paused) {
+		LuminaEngine.paused = paused;
 	}
 
 	public static void setGlobalImageScale(float scale) {
@@ -98,12 +112,16 @@ public final class LuminaEngine implements Runnable {
 		while (keepRunning) {
 			start = System.nanoTime();
 			glfwPollEvents();
-			game.update();
-			render();
+			float millisecondsPerFrame = (float) (1000.0d / targetFPS);
+			if (!paused) {
+				game.update();
+				render();
+				gameTime += millisecondsPerFrame;
+			}
 			if (Window.shouldClose())
-				stop();
+				exit();
 			long now = System.nanoTime();
-			long sleeptime = (long) ((1000.0d / targetFPS) - ((double) (now - start) / 1000000.0D));
+			long sleeptime = (long) (millisecondsPerFrame - ((double) (now - start) / 1000000.0D));
 			//System.out.println("Target FPS: "+targetFPS+", "+(1000.0d / targetFPS)+"-"+((double) (now - start) / 1000000.0D)+"="+sleeptime);
 			if (sleeptime <= 0) {
 				continue;
@@ -122,7 +140,7 @@ public final class LuminaEngine implements Runnable {
 		Window.render();
 	}
 
-	public static void stop() {
+	public static void exit() {
 		keepRunning = false;
 	}
 

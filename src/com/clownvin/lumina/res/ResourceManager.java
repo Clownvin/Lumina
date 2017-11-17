@@ -100,9 +100,54 @@ public final class ResourceManager {
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-		Texture texture = new Texture(id, width, height);
+		Texture texture = new Texture(id);
 		textureTable.put(name, texture);
 		return texture;
+	}
+	
+	public static AnimatedTexture loadTexture(String name, String format, int spriteWidth, int spriteHeight) {
+		BufferedImage bufferedImage = null;
+		try {
+			bufferedImage = ImageIO.read(new File(RESOURCE_PATH + TEXTURE_PATH + name + "." + format));
+		} catch (IOException e) {
+			e.printStackTrace(); // TODO return blank texture instead of just crashing
+			System.exit(1);
+		}
+		int width = bufferedImage.getWidth();
+		int height = bufferedImage.getHeight();
+
+		int[] pixels_raw = new int[width * height * 4];
+		pixels_raw = bufferedImage.getRGB(0, 0, width, height, null, 0, width);
+
+		ByteBuffer pixels = BufferUtils.createByteBuffer(width * height * 4);
+
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				int pixel = pixels_raw[i * height + j];
+				pixels.put((byte) ((pixel >> 16) & 0xFF)); // RED
+				pixels.put((byte) ((pixel >> 8) & 0xFF)); // GREEN
+				pixels.put((byte) (pixel & 0xFF)); // BLUE
+				pixels.put((byte) ((pixel >> 24) & 0xFF)); // ALPHA
+			}
+		}
+
+		pixels.flip();
+
+		int id = glGenTextures();
+
+		glBindTexture(GL_TEXTURE_2D, id);
+
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+		AnimatedTexture texture = new AnimatedTexture(id, spriteWidth, spriteHeight, width, height);
+		textureTable.put(name, texture);
+		return texture;
+	}
+	
+	public static AnimatedTexture loadTexture(String name, int spriteWidth, int spriteHeight) {
+		return loadTexture(name, "png", spriteWidth, spriteHeight);
 	}
 
 	public static Texture loadTexture(String name) {

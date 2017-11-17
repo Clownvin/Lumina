@@ -8,18 +8,19 @@ import org.lwjgl.glfw.GLFWMouseButtonCallback;
 import com.clownvin.lumina.Game;
 import com.clownvin.lumina.LuminaEngine;
 import com.clownvin.lumina.Log;
-import com.clownvin.lumina.entity.DynamicEntity;
+import com.clownvin.lumina.entity.Entity;
 import com.clownvin.lumina.graphics.Camera;
 import com.clownvin.lumina.gui.ChatBox;
 import com.clownvin.lumina.gui.GUIManager;
 import com.clownvin.lumina.gui.TitleScreen;
+import com.clownvin.lumina.res.ResourceManager;
 import com.clownvin.lumina.world.WorldManager;
 
 public class TestGame extends Game {
 
 	public static float moveAmount = 2.0f/64.0f;
 
-	public DynamicEntity player;
+	public Entity player;
 
 	public static void main(String[] args) {
 		Log.setDebug(true);
@@ -72,7 +73,11 @@ public class TestGame extends Game {
 					}
 					break;
 				case 0x100: // ESCAPE
-					LuminaEngine.stop();
+					LuminaEngine.exit();
+					break;
+				case 0x20: //SPACEBAR
+					if (action == 1)
+						LuminaEngine.setPause(!LuminaEngine.isPaused());
 					break;
 				default:
 					Log.log("key: " + key + ", scancode: " + scancode + ", action: " + action + ", mods: " + mods
@@ -138,13 +143,13 @@ public class TestGame extends Game {
 	public void setup() {
 		LuminaEngine.setTargetFPS(60.0d);
 		LuminaEngine.setGlobalImageScale(64);
-		player = new DynamicEntity(0, 0);
 		LuminaEngine.setShowWorld(false);
 		LuminaEngine.setShowGUI(true);
 		titleScreen = new TitleScreen("title1");
-		GUIManager.addGUIComponent(new ChatBox(500, 200));
+		GUIManager.addGUIComponent(new ChatBox("chatbox1", 500, 200));
 		GUIManager.addGUIComponent(titleScreen);
 		WorldManager.loadWorld("test");
+		player = new Entity("test1", 0, 0, true, true);
 		WorldManager.getWorld().addEntity(player);
 	}
 

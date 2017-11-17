@@ -37,7 +37,6 @@ public final class Window {
 			Window.height = height;
 			recalibrate();
 			for (WindowSizeListener l : windowSizeListeners) {
-				System.out.println("stuff");
 				l.onWindowResize(width, height);
 			}
 		}

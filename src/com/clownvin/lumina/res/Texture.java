@@ -2,31 +2,25 @@ package com.clownvin.lumina.res;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.*;
+import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.glBindBuffer;
+import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 
 import com.clownvin.lumina.Log;
+import com.clownvin.lumina.graphics.RenderUtil;
 
 public class Texture {
-	private final int id, width, height;
+	protected final int id;
 
-	public Texture(int id, int width, int height) {
+	public Texture(int id) {
 		this.id = id;
-		this.width = width;
-		this.height = height;
 	}
 
 	public int getId() {
 		return id;
 	}
 
-	public int getWidth() {
-		return width;
-	}
-
-	public int getHeight() {
-		return height;
-	}
-
-	public void bind(int sampler) {
+	public void bind(int sampler, int frame) {
 		if (sampler < 0 || sampler > 31) {
 			Log.logE("Sampler out of range");
 			new Exception().printStackTrace();
@@ -34,5 +28,7 @@ public class Texture {
 		}
 		glActiveTexture(GL_TEXTURE0 + sampler);
 		glBindTexture(GL_TEXTURE_2D, id);
+		glBindBuffer(GL_ARRAY_BUFFER, RenderUtil.getStaticTexPointer());
+		glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
 	}
 }

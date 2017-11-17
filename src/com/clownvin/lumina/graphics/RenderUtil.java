@@ -9,12 +9,11 @@ import java.nio.IntBuffer;
 import org.lwjglx.BufferUtils;
 
 public final class RenderUtil {
-	private static int texturePointer, indicesPointer;
+	private static int staticTexPointer, indicesPointer;
 
-	public static int getTexPointer() {
-		return texturePointer;
+	public static int getStaticTexPointer() {
+		return staticTexPointer;
 	}
-
 	public static int getIndicesPointer() {
 		return indicesPointer;
 	}
@@ -34,9 +33,9 @@ public final class RenderUtil {
 	public static void setupModel() {
 		float[] uv = new float[] { 0, 0, 1, 0, 1, 1, 0, 1 };
 		int[] indices = new int[] { 0, 1, 2, 2, 3, 0 };
-
-		texturePointer = glGenBuffers();
-		glBindBuffer(GL_ARRAY_BUFFER, texturePointer);
+		
+		staticTexPointer = glGenBuffers();
+		glBindBuffer(GL_ARRAY_BUFFER, staticTexPointer);
 		glBufferData(GL_ARRAY_BUFFER, createBuffer(uv), GL_STATIC_DRAW);
 
 		indicesPointer = glGenBuffers();

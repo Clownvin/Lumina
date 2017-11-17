@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 import com.clownvin.lumina.entity.Entity;
-import com.clownvin.lumina.entity.TileEntity;
 
 public final class WorldManager {
 	// private static final Hashtable<String, World> worldTable = new Hashtable<>();
@@ -48,7 +47,7 @@ public final class WorldManager {
 				} else if (textures.containsKey(tokens[0]) && tokens.length == 3) {
 					float x = Float.parseFloat(tokens[1]);
 					float y = Float.parseFloat(tokens[2]);
-					tileSet.add(new TileEntity(x, y, textures.get(tokens[0])));
+					tileSet.add(new Entity(textures.get(tokens[0]), x, y, false, false));
 				} else if (textures.containsKey(tokens[0]) && tokens.length >= 5) {
 					float x1 = Float.parseFloat(tokens[1]);
 					float y1 = Float.parseFloat(tokens[2]);
@@ -64,7 +63,7 @@ public final class WorldManager {
 					}
 					for (float x = x1; x < x2; x += sizeX) {
 						for (float y = y1; y < y2; y += sizeY) {
-							tileSet.add(new TileEntity(x, y, textures.get(tokens[0])));
+							tileSet.add(new Entity(textures.get(tokens[0]), x, y, false, false));
 						}
 					}
 				}

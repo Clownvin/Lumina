@@ -6,6 +6,9 @@ import static org.lwjgl.opengl.GL15.glBindBuffer;
 import static org.lwjgl.opengl.GL15.glBufferData;
 import static org.lwjgl.opengl.GL15.glBufferSubData;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.clownvin.lumina.LuminaEngine;
 import com.clownvin.lumina.entity.Entity;
 import com.clownvin.lumina.graphics.RenderUtil;
@@ -17,14 +20,21 @@ public abstract class GUIComponent extends Entity implements WindowSizeListener 
 		TOP_LEFT, TOP_RIGHT, TOP_MIDDLE, MIDDLE_RIGHT, MIDDLE_LEFT, BOT_LEFT, BOT_RIGHT, BOT_MIDDLE, MIDDLE, CUSTOM;
 	}
 	
-	protected int x, y, width, height;
-	private int bX, bY;
+	private float bX, bY;
 	private float fX1, fY1, fX2, fY2;
 	private final Binding binding;
+	private final GUIComponent parent;
+	private final List<GUIComponent> children = new ArrayList<>();
 	
-	public GUIComponent(int x, int y, int width, int height, Binding binding) {
-		this.x = x;
-		this.y = y;
+	private void addChild(GUIComponent component) {
+		children.add(component);
+	}
+	
+	public GUIComponent(String texture, int x, int y, int width, int height, GUIComponent parent, Binding binding, boolean animated) {
+		super(texture, (float) x, (float) y, true, animated);
+		this.parent = parent;
+		if (parent != null)
+			parent.addChild(this);
 		this.width = width;
 		this.height = height;
 		this.binding = binding;
@@ -36,43 +46,53 @@ public abstract class GUIComponent extends Entity implements WindowSizeListener 
 	}
 	
 	public void recalculate() {
+		float w = Window.getWidth(), h = Window.getHeight(), x1 = 0, y1 = 0;
+		if (parent != null) {
+			w = parent.getWidth();
+			h = parent.getHeight();
+			x1 = parent.getX();
+			y1 = parent.getY();
+		}
 		switch (binding) {
 		case CUSTOM:
-		case TOP_LEFT:
 			bX = x;
 			bY = y;
+			break;
+		case TOP_LEFT:
+			bX = x + x1;
+			bY = y + y1;
 			break;
 		case MIDDLE_LEFT:
-			bX = x;
-			bY = y + ((Window.getHeight() / 2) - (getHeight() / 2));
+			bX = x + x1;
+			bY = y + ((h / 2) - (getHeight() / 2));
 			break;
 		case BOT_LEFT:
-			bX = x;
-			bY = y + (Window.getHeight() - getHeight());
+			bX = x + x1;
+			bY = y + (h - getHeight());
 			break;
 		case TOP_RIGHT:
-			bX = x + (Window.getWidth() - getWidth());
-			bY = y;
+			bX = x + (w - getWidth());
+			bY = y + y1;
 			break;
 		case MIDDLE_RIGHT:
-			bX = x + (Window.getWidth() - getWidth());
-			bY = y + ((Window.getHeight() / 2) - (getHeight() / 2));
+			bX = x + (w - getWidth());
+			bY = y + ((h / 2) - (getHeight() / 2));
 			break;
 		case BOT_RIGHT:
-			bX = x + (Window.getWidth() - getWidth());
-			bY = y + (Window.getHeight() - getHeight());
+			bX = x + (w - getWidth());
+			bY = y + (h - getHeight());
 			break;
 		case TOP_MIDDLE:
-			bX = x + ((Window.getWidth() / 2) - (getWidth() / 2));
-			bY = y;
+			bX = x + ((w / 2) - (getWidth() / 2));
+			bY = y + y1;
 			break;
 		case MIDDLE:
-			bX = x + ((Window.getWidth() / 2) - (getWidth() / 2));
-			bY = y + ((Window.getHeight() / 2) - (getHeight() / 2));
+			bX = x + ((w / 2) - (getWidth() / 2));
+			bY = y + ((h / 2) - (getHeight() / 2));
 			break;
 		case BOT_MIDDLE:
-			bX = x + ((Window.getWidth() / 2) - (getWidth() / 2));
-			bY = y + (Window.getHeight() - getHeight());
+			bX = x + ((w / 2) - (getWidth() / 2));
+			bY = y + (h - getHeight());
 			break;
 		default:
 			System.out.println("No case for binding: "+binding);
@@ -80,10 +100,12 @@ public abstract class GUIComponent extends Entity implements WindowSizeListener 
 		}
 		fX1 = bX * LuminaEngine.getPixelRatio() + ((-Window.getWidth() / 2) * LuminaEngine.getPixelRatio());
 		fY1 = -bY * LuminaEngine.getPixelRatio() + ((Window.getHeight() / 2) * LuminaEngine.getPixelRatio());
-		System.out.println(width+", "+height+", "+LuminaEngine.getPixelRatio());
 		fX2 = fX1 + (width * LuminaEngine.getPixelRatio());
 		fY2 = fY1 - (height * LuminaEngine.getPixelRatio());
 		updateVertices();
+		for (GUIComponent child : children) {
+			child.recalculate();
+		}
 	}
 	
 	private void updateVertices() {
@@ -102,9 +124,6 @@ public abstract class GUIComponent extends Entity implements WindowSizeListener 
 			Window.removeWindowSizeListener(this);
 	}
 	
-	@Override
-	public abstract String getTexture();
-	
 	public abstract int getLayer();
 	
 	@Override
@@ -117,7 +136,7 @@ public abstract class GUIComponent extends Entity implements WindowSizeListener 
 				};
 	}
 	
-	public final int getX() {
+	public final float getX() {
 		return bX;
 	}
 	
@@ -126,7 +145,7 @@ public abstract class GUIComponent extends Entity implements WindowSizeListener 
 		recalculate();
 	}
 	
-	public final int getWidth() {
+	public final float getWidth() {
 		return width;
 	}
 	
@@ -135,7 +154,7 @@ public abstract class GUIComponent extends Entity implements WindowSizeListener 
 		recalculate();
 	}
 	
-	public final int getHeight() {
+	public final float getHeight() {
 		return height;
 	}
 	
@@ -144,7 +163,7 @@ public abstract class GUIComponent extends Entity implements WindowSizeListener 
 		recalculate();
 	}
 	
-	public final int getY() {
+	public final float getY() {
 		return bY;
 	}
 	

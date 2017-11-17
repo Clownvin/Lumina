@@ -2,13 +2,8 @@ package com.clownvin.lumina.gui;
 
 public class ChatBox extends GUIComponent {
 
-	public ChatBox(int width, int height) {
-		super(0, 0, width, height, Binding.BOT_LEFT);
-	}
-
-	@Override
-	public String getTexture() {
-		return "chatbox1";
+	public ChatBox(String texture, int width, int height) {
+		super(texture, 0, 0, width, height, null, Binding.BOT_LEFT, false);
 	}
 
 	@Override
