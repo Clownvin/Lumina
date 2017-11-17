@@ -88,9 +88,6 @@ public final class LuminaEngine implements Runnable {
 
 	private void setup() {
 		Window.createWindow(game.getTitle());
-		Window.setCursorPosCallback(game.getCursorPosCallback());
-		Window.setKeyCallback(game.getKeyCallback());
-		Window.setMouseButtonCallback(game.getMouseButtonCallback());
 		RenderUtil.initGraphics();
 		game.setup();
 		Window.recalibrate();

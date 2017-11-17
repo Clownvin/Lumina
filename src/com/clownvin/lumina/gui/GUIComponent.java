@@ -13,9 +13,9 @@ import com.clownvin.lumina.LuminaEngine;
 import com.clownvin.lumina.entity.Entity;
 import com.clownvin.lumina.graphics.RenderUtil;
 import com.clownvin.lumina.graphics.Window;
-import com.clownvin.lumina.graphics.WindowSizeListener;
+import com.clownvin.lumina.input.WindowListener;
 
-public abstract class GUIComponent extends Entity implements WindowSizeListener {
+public abstract class GUIComponent extends Entity implements WindowListener {
 	public static enum Binding {
 		TOP_LEFT, TOP_RIGHT, TOP_MIDDLE, MIDDLE_RIGHT, MIDDLE_LEFT, BOT_LEFT, BOT_RIGHT, BOT_MIDDLE, MIDDLE, CUSTOM;
 	}

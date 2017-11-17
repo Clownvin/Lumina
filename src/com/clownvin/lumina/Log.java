@@ -3,6 +3,7 @@ package com.clownvin.lumina;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 
 public final class Log {
 	private static BufferedWriter writer;

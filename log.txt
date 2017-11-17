@@ -1,2 +1,0 @@
-[DEBUG] Debug output enabled.
-4.5.0 NVIDIA 384.94

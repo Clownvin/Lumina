@@ -1,9 +1,5 @@
 package com.clownvin.lumina;
 
-import org.lwjgl.glfw.GLFWCursorPosCallback;
-import org.lwjgl.glfw.GLFWKeyCallback;
-import org.lwjgl.glfw.GLFWMouseButtonCallback;
-
 public abstract class Game implements Runnable {
 	public final Object updateSyncLock = new Object();
 
@@ -45,10 +41,4 @@ public abstract class Game implements Runnable {
 	public abstract void onUpdate();
 
 	public abstract String getTitle();
-
-	public abstract GLFWKeyCallback getKeyCallback();
-
-	public abstract GLFWCursorPosCallback getCursorPosCallback();
-
-	public abstract GLFWMouseButtonCallback getMouseButtonCallback();
 }

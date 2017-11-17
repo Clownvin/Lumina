@@ -25,10 +25,6 @@ public class Entity {
 	protected String texture;
 	protected String animation = IDLE;
 	protected final Hashtable<String, Animation> animationTable;
-
-	public Entity() {
-		this("test1", 0.0f, 0.0f, false, false);
-	}
 	
 	public boolean isVisible() {
 		return visible;
